@@ -1,0 +1,206 @@
+---
+title: "Practice ggplot2"
+date: '`r Sys.Date()`'
+output:   
+  html_document: 
+    number_sections: yes
+    theme: yeti
+    toc: yes
+    toc_float: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+# knitr setup options
+knitr::opts_chunk$set(
+  warning=FALSE, 
+  message=FALSE, 
+  echo = TRUE)
+
+# load all the packages
+library(tidyverse)
+library(lubridate)
+library(janitor)
+library(ggridges)
+library(gapminder)
+library(GGally)
+library(ggExtra)
+library(ggthemes)
+# library(hrbrthemes)
+library(ggrepel)
+library(corrplot)
+library(ggpubr)
+library(pheatmap)
+library(plotly)
+```
+
+# R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can also run the chunks interactively.
+
+# Data
+
+This code reads in the data we will need from the csv files:
+
+```{r data}
+gapminder2011 <- read_csv("../data/Gapminder_vars_2011.csv")
+```
+
+# Bar plot
+
+This is the code from the slides. Change the code to do the following:
+
+- use the variable `members_oecd_g77` for the bars and make the barplot horizontal instead of vertical
+- change the fill to `WaterSourcePrct_2011_quart`
+- use `position="dodge"` as an argument to `geom_bar()`
+- change x axis label to "Number of countries" and the y axis label to "OECD g77 Members"
+
+Homework:
+- change the order of the y axis with `scale_y_discrete(limits = c(NA,"others","oecd","g77"))`
+- change the color of the bars to a different palette, hint: type ?scale_fill_viridis_d() and look for the argument option=
+
+```{r}
+ggplot(data = gapminder2011,
+       aes(x = four_regions,
+           fill = eight_regions)) +
+  geom_bar() +
+  labs(x = "World Regions",
+       y = "Number of countries",
+       title = "Barplot") + 
+  theme_bw() + 
+  theme(
+    axis.text.x = element_text(angle = -30, hjust = 0)) +
+  scale_fill_viridis_d(name = "Subregions")
+```
+
+
+## Solution
+
+```{r}
+
+```
+
+
+# Bubble plot
+
+This is the code from the bubble plot.
+
+- Change x to be mapped to `IncomePP`
+- Change the x label to be accurate
+- Map shape to `members_oecd_g77`
+
+Homework:
+- Change the scale of the x-axis to be on the log10 scale using `scale_x_log10`
+
+```{r}
+ggplot(data = gapminder2011,
+       aes(x = FoodSupplykcPPD,
+           y = LifeExpectancyYrs,
+           color = four_regions,
+           size = population)) + 
+  geom_point(alpha = 0.4) +
+  scale_color_colorblind(
+    name = "Regions",
+    labels = c("Africa", "Americas", 
+               "Asia", "Europe")
+  ) +
+  scale_size(
+    name = "Population Size (millions)",
+    breaks = c(1e08,5e08,1e09),
+    labels = c(100,500,1000)
+  ) +
+  theme_minimal() +
+  labs(
+    x = "Daily Food Supply PP (kc)",  
+    y = "Life Expectancy (years)",   
+    title = "Bubbleplot"
+    )
+```
+
+## Solution
+
+
+```{r}
+
+```
+
+
+
+# Histogram
+
+This is the code from the slides. Change the following code to do the following:
+
+- change the width of the histogram bins to 1.5 (hint: type `?geom_histogram` in the console to find the argument)
+- add a layer of `geom_density()` with alpha = 0.4
+- Why doesn't the density line show up? Add `aes(y=..density..)` to the histogram function arguments.
+- facet by `four_regions`
+
+Homework:
+- change the theme to `theme_bw()`
+- fill by `eight_regions`, color by `four_regions`
+- change the fill scale to viridis (discrete version is `scale_fill_viridis_d`) 
+- remove the color legend, use `scale_color_discrete(guide = FALSE)`
+- change the title to "Histogram and Density of Life Expectancy"
+
+```{r}
+ggplot(data = gapminder2011,
+       aes(x = LifeExpectancyYrs,
+           fill = four_regions)) + 
+  geom_histogram() + 
+  scale_fill_discrete(
+    name = "Regions",
+    labels = c("Africa", "Americas", 
+               "Asia", "Europe")
+  ) + 
+  labs(
+    x = "Life Expectancy (years)",   
+    title = "Histogram"
+    ) + 
+  ggthemes::theme_economist() +
+  theme(
+    legend.position="bottom"
+  )
+```
+
+## Solution
+
+```{r}
+
+```
+
+# Boxplot
+
+This is the code from the slides. Change the following code to do the following:
+- fill by `four_regions`
+- make the boxplot vertical instead of horizontal
+
+```{r}
+ggplot(data = gapminder2011,
+       aes(x = LifeExpectancyYrs, # New!
+           y = four_regions
+           )
+       ) + 
+  geom_boxplot(alpha = 0.3) + 
+  theme_fivethirtyeight() +
+  theme(axis.title = element_text()) + 
+  scale_fill_fivethirtyeight() + 
+  theme(legend.position = "none") + 
+  geom_jitter(width = .1, alpha = 0.3) +
+  geom_violin(colour = "grey", alpha = .2) + 
+  labs(
+    x = "World Region",    
+    y = "Life Expectancy (years)",   
+    title = "Boxplot"
+    )
+```
+
+##Solution
+
+```{r}
+
+```
+
+
