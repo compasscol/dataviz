@@ -27,7 +27,7 @@ library(gapminder)
 library(GGally)
 library(ggExtra)
 library(ggthemes)
-# library(hrbrthemes)
+#library(hrbrthemes)
 library(ggrepel)
 library(corrplot)
 library(ggpubr)
@@ -39,7 +39,7 @@ library(plotly)
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can also run the chunks interactively.
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. 
 
 # Data
 
@@ -56,11 +56,9 @@ This is the code from the slides. Change the code to do the following:
 - use the variable `members_oecd_g77` for the bars and make the barplot horizontal instead of vertical
 - change the fill to `WaterSourcePrct_2011_quart`
 - use `position="dodge"` as an argument to `geom_bar()`
-- change x axis label to "Number of countries" and the y axis label to "OECD g77 Members"
-
-Homework:
+- change y axis label to "OECD g77 Members"
 - change the order of the y axis with `scale_y_discrete(limits = c(NA,"others","oecd","g77"))`
-- change the color of the bars to a different palette, hint: type ?scale_fill_viridis_d() and look for the argument option=
+- change the color of the bars to a different palette
 
 ```{r}
 ggplot(data = gapminder2011,
@@ -76,11 +74,24 @@ ggplot(data = gapminder2011,
   scale_fill_viridis_d(name = "Subregions")
 ```
 
-
 ## Solution
 
-```{r}
 
+```{r}
+ggplot(data = gapminder2011,
+       aes(y = members_oecd_g77,
+           fill = WaterSourcePrct_2011_quart)) +
+  # geom_bar() +
+  geom_bar(position="dodge") +
+  # if you want to keep width the same:
+  #geom_bar(position = position_dodge2(preserve="single"))+
+  labs(x = "Number of countries",
+       y = "OECD g77 Members",
+       title = "Barplot") + 
+  scale_y_discrete(limits = c(NA,"others","oecd","g77")) +
+  scale_fill_viridis_d(name = "Water Source %", option = "C") +
+  #coord_flip() +
+  theme_bw() 
 ```
 
 
@@ -91,8 +102,6 @@ This is the code from the bubble plot.
 - Change x to be mapped to `IncomePP`
 - Change the x label to be accurate
 - Map shape to `members_oecd_g77`
-
-Homework:
 - Change the scale of the x-axis to be on the log10 scale using `scale_x_log10`
 
 ```{r}
@@ -112,7 +121,7 @@ ggplot(data = gapminder2011,
     breaks = c(1e08,5e08,1e09),
     labels = c(100,500,1000)
   ) +
-  theme_minimal() +
+  theme_minimal() + 
   labs(
     x = "Daily Food Supply PP (kc)",  
     y = "Life Expectancy (years)",   
@@ -124,25 +133,45 @@ ggplot(data = gapminder2011,
 
 
 ```{r}
-
+ggplot(data = gapminder2011,
+       aes(x = IncomePP,
+           y = LifeExpectancyYrs,
+           color = four_regions,
+           size = population,
+           shape = members_oecd_g77)) + 
+  geom_point(alpha = 0.4) +
+  scale_color_colorblind(
+    name = "Regions",
+    labels = c("Africa", "Americas", 
+               "Asia", "Europe")
+  ) +
+  scale_x_log10()+
+  scale_size(
+    name = "Population Size (millions)",
+    breaks = c(1e08,5e08,1e09),
+    labels = c(100,500,1000)
+  ) +
+  theme_minimal() + 
+  labs(
+    x = "Income PP ($)",  
+    y = "Life Expectancy (years)",   
+    title = "Bubbleplot"
+    ) 
 ```
-
 
 
 # Histogram
 
 This is the code from the slides. Change the following code to do the following:
 
-- change the width of the histogram bins to 1.5 (hint: type `?geom_histogram` in the console to find the argument)
+- change the width of the histogram bins to 1.5 (hint: type `?geom_histogram` in the - change the width of the histogram bins to 1.5 (hint: type `?geom_histogram` in the console to find the argument)
 - add a layer of `geom_density()` with alpha = 0.4
 - Why doesn't the density line show up? Add `aes(y=..density..)` to the histogram function arguments.
 - facet by `four_regions`
-
-Homework:
 - change the theme to `theme_bw()`
 - fill by `eight_regions`, color by `four_regions`
 - change the fill scale to viridis (discrete version is `scale_fill_viridis_d`) 
-- remove the color legend, use `scale_color_discrete(guide = FALSE)`
+- remove the color legend
 - change the title to "Histogram and Density of Life Expectancy"
 
 ```{r}
@@ -167,40 +196,40 @@ ggplot(data = gapminder2011,
 
 ## Solution
 
-```{r}
+- change the width of the histogram bins to 1.5 (hint: type `?geom_histogram` in the console to find the argument)
+- add a layer of `geom_density()` with alpha = 0.4
+- Why doesn't the density line show up? Add `aes(y=..density..)` to the histogram function arguments.
+- facet by `four_regions`
+- change the theme to `theme_bw()`
+- fill by `eight_regions`, color by `four_regions`
+- change the fill scale to viridis (discrete version is `scale_fill_viridis_d`) 
+- remove the color legend
+- change the title to "Histogram and Density of Life Expectancy"
 
-```
-
-# Boxplot
-
-This is the code from the slides. Change the following code to do the following:
-- fill by `four_regions`
-- make the boxplot vertical instead of horizontal
 
 ```{r}
 ggplot(data = gapminder2011,
-       aes(x = LifeExpectancyYrs, # New!
-           y = four_regions
-           )
-       ) + 
-  geom_boxplot(alpha = 0.3) + 
-  theme_fivethirtyeight() +
-  theme(axis.title = element_text()) + 
-  scale_fill_fivethirtyeight() + 
-  theme(legend.position = "none") + 
-  geom_jitter(width = .1, alpha = 0.3) +
-  geom_violin(colour = "grey", alpha = .2) + 
+       aes(x = LifeExpectancyYrs,
+           color = four_regions,
+           fill = eight_regions
+           )) + 
+  #geom_histogram(binwidth = 1.5) + 
+  geom_histogram(aes(y=..density..),
+                 binwidth = 1.5) +
+  geom_density(alpha = 0.4) + 
+  facet_wrap(~four_regions) + 
+  theme_bw() + 
+  scale_fill_viridis_d(name = "Regions") + 
+  # remove legend for color
+  scale_color_discrete(guide = FALSE) +
   labs(
-    x = "World Region",    
-    y = "Life Expectancy (years)",   
-    title = "Boxplot"
-    )
+    x = "Life Expectancy (years)",   
+    title = "Histogram and Density of 
+    Life Expectancy"
+    ) 
 ```
 
-##Solution
 
-```{r}
 
-```
 
 

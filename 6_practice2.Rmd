@@ -1,0 +1,512 @@
+---
+title: "Vamos a practicar!!!"
+author: "Paulo y Viviana"
+date: "2/19/2021"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+```
+
+## Vamos a practicar!
+
+```{r histogramas R base}
+remove(list = ls()) # removamos todo de la memoria
+
+# simulamos algunos datos!
+data1 <- data.frame(
+  location = rep("col", 1000),
+  value = rnorm(1000, mean = 0)
+)
+
+mean(data1$value)
+
+head(data1) # que tenemos?
+# si no lo ven en la consola cambiar la opcion en opciones
+str(data1) # cual es la estructura?
+
+
+hist(data1$value) # Lo mas facil!
+
+hist(data1$value, 
+     breaks = 10,
+     col = "cornflowerblue", # cambiemos el color
+     main = "Histograma", # el titulo!
+     xlab = "values", # nombre eje x
+     #ylab = "counts" 
+     ) 
+```
+
+## Ahora usemos ggplot para crear histogramas 
+
+```{r histogramas ggplot}
+# cargar tidyverse. Este paquete incluye ggplpot
+# install.packages("tidyverse") 
+library(tidyverse)
+
+# los mas facil
+head(data1)
+
+data1 %>%
+  ggplot(aes(x=value)) +
+  geom_histogram( )
+
+
+# mojoremos la grafica!
+head(data1)
+
+data1 %>%
+  ggplot(aes(x=value)) +
+  geom_histogram(fill="yellow1",
+                 color="black",
+                 alpha= 0.3, 
+                 bins = 50 ) +
+  theme_classic() +
+  xlab("Datos") +
+  ylab("Frecuencia")
+
+
+# Ahora simulemos mas datos!
+data2 <- data.frame(
+  location = c(rep("col", 1000), rep("peru", 1000) ),
+  value = c(rnorm(1000, mean = -1), rnorm(1000, mean=4) )
+)
+
+head(data2) # primeros 6
+tail(data2) # ultimos 6
+dim(data2)
+
+# Histograma con dos variables
+data2 %>%
+  ggplot(aes(x=value, fill=location)) +
+  geom_histogram(color="black", 
+                 alpha=0.4, 
+                 bins = 50) +
+  scale_fill_manual(values=c("gold", "firebrick1")) +
+  theme_get() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("Histograma con 2 variables") +
+  labs(fill="")
+
+
+```
+
+
+#### Densidades !
+ 
+
+```{r Densidades }
+
+head(data1)
+ 
+data1 %>% # la mas basica
+   ggplot( aes(x=value)) +
+   geom_density(fill="olivedrab1", color="magenta", 
+                alpha=0.6)
+
+
+data1 %>% # mas detalles!
+   ggplot( aes(x=value)) +
+   geom_density(fill="olivedrab1", color="magenta", 
+                alpha=0.6) +
+   geom_label( aes( x=4, y=0.3,label="Col"), 
+               color="black") +
+   theme_classic() +
+   labs(fill="") +
+   xlab("Datos") +
+   ylab("Frecuencia")
+
+```
+
+### Densidades con 2 set de datos
+```{r Densidades x 2 }
+head(data2)
+
+data2 %>%
+   ggplot(aes(x=value, fill = location)) +
+   geom_density(alpha=0.6)
+
+p1 <- data1 %>%
+   ggplot( aes(x=value, fill=location)) +
+   geom_histogram(color="black",alpha=0.5, bins = 20 ) +
+   theme_classic() +
+   labs(fill="") +
+   xlab("Datos") +
+   ylab("Frecuencia")
+
+p1 
+
+p2 <- data1 %>%
+   ggplot( aes(x=value)) +
+   geom_density(fill="olivedrab1", color="magenta", 
+                alpha=0.8) +
+   geom_label( aes( x=4, y=0.3,label="col"), 
+               color="black") +
+   theme_classic() +
+   labs(fill="") +
+   xlab("Datos") +
+   ylab("Frecuencia")
+
+p2 
+
+#install.packages("gridExtra")
+library(gridExtra) # para organizar varias graficas en el mismo plot
+ 
+#  par(mfrow=c(r,c)) es solo para R base
+grid.arrange(p1, p2,  nrow = 2 )
+ 
+ 
+# Densidad de dos caras o:|:o
+ 
+# primero simulemos datos .... de nuevo. 
+
+data3 <- data.frame(colombia =  1:100 + rnorm(100, sd = 10),
+                    peru = 1:100 + rnorm(100, sd= 20), 
+                    argentina = 1:100 + rnorm(100, sd= 50),
+                    us = 100:1 + rnorm(100, sd= 40),
+                    brasil = 100:1 + rnorm(100, sd= 30))
+
+
+head(data3)
+
+# densidad de dos caras o:|:o 
+
+ggplot(data3, aes(x=x) ) +
+  # Top
+   geom_density(aes(x = colombia, y = ..density..), 
+                 fill="olivedrab1" ) +
+   geom_label(aes(x=100, y=0.02,label="Colombia"), 
+               color="black") +
+   # Bottom
+   geom_density(aes(x = argentina, y = -..density..), 
+                 fill= "salmon") +
+   geom_label( aes(x=100, y=-0.02, label="Argentina"), 
+               color="black") +
+   theme_classic() +
+   xlab("values")
+```
+
+### Graficas de dispersión
+
+```{r dispersión}
+
+head(data3)
+
+x <- rep(2018:2021, 25 ) # vector con años
+
+length(x)
+dim(data3)
+head(data3)
+
+data3$year <- x # crear una nueva columna con los años
+
+head(data3) # miren siempre los datos!!!!
+str(data3) 
+
+plot(data3$colombia,data3$peru) # mas basica
+
+ggplot(data3, aes(x=colombia, y=peru, color=year)) + 
+      geom_point(size=4) +
+      theme_classic()
+ 
+data3$year <- as.factor(data3$year) # como factor
+str(data3)
+
+ggplot(data3, aes(x=colombia, y=peru, color=year)) + 
+  geom_point(size=4) +
+  theme_classic()
+
+
+# regresion lienal? no problema
+ggplot(data3, aes(x=colombia, y=peru, color=year)) + 
+  geom_point(size=4) +
+  stat_smooth(method='lm') +
+  theme_classic() #### no se ve mucho :(
+  
+
+ggplot(data3, aes(x=colombia, y=peru, color=year)) + 
+    geom_point(size=5) +
+    stat_smooth(method='lm')+
+    theme_classic() +
+    facet_grid(.~year) # dividir el grafico! oh lala!
+
+```
+
+# Ahora combinemoslas!!!!!!!!
+
+```{r combinar graficas}
+library(ggExtra) # para combinar graficas!
+
+str(data3)
+
+# dispersion:
+p <- ggplot(data3, aes(x=peru, y=brasil) ) +
+    geom_point(size=4, color= "orange", alpha = 0.5) +
+    stat_smooth(method='lm')+
+    ggtitle("oh lala!") # ohhhhh
+
+p
+
+#  con histogramas
+p1 <- ggMarginal(p, type="histogram", 
+                 xparams = list(bins=10, 
+                                fill="royalblue", 
+                                alpha = 0.3),
+                 yparams = list(bins=10, 
+                                fill="olivedrab1", 
+                                alpha = 0.3))
+p1
+
+# con  densidades
+p2 <- ggMarginal(p, type="density", 
+                 xparams = list( fill="royalblue", 
+                                 alpha = 0.3),
+                 yparams = list( fill="olivedrab1", 
+                                 alpha = 0.3))
+p2
+
+# con boxplots!!!!
+p3 <- ggMarginal(p, type="boxplot", 
+                 xparams = list( fill="royalblue", 
+                                 alpha = 0.3),
+                 yparams = list( fill="olivedrab1", 
+                                 alpha = 0.3))
+p3
+
+grid.arrange(p1, p2, p3, nrow = 3) # gridExtra
+
+```
+
+### Boxplots
+
+```{r Boxplots}
+
+head(data3)
+# algunas veces es mejor transformar los datos
+data3long <- data3 %>% gather(key = location, 
+                              value = value,
+                              -year)
+
+head(data3long)
+dim(data3long)
+
+data3long %>% # el mas facil
+  ggplot(aes(x=location, y=value, fill=location)) +
+  geom_boxplot() +
+  xlab ("Locations")# como estan ordenadas????
+
+
+head(data3long)
+str(data3long)
+
+# rear un vector con el orden que queremos
+data3long$location = factor(data3long$location ,  
+     levels = c("argentina", "brasil","colombia", 
+                "peru", "us"))
+
+str(data3long)
+
+data3long %>% # el mas facil... de nuevo
+  ggplot(aes(x=location, y=value, fill=location)) +
+  geom_boxplot() +
+  xlab ("Locations")
+
+
+
+data3long %>% # mas detalles!
+  ggplot(aes(x=location, y=value, fill=location)) +
+  geom_boxplot() +
+  theme_classic() +
+  theme(plot.title = element_text(hjust = 0.5, 
+                                  size = 20),
+        axis.text = element_text(size = 12)) +
+  ggtitle("Basic boxplot") +
+  xlab("") +
+  xlab("") +
+  labs(fill="") 
+
+
+# ahora con los puntos!!!
+data3long %>%
+  ggplot( aes(x=location, y=value, fill=location)) +
+  geom_boxplot() +
+  theme_linedraw() +
+  geom_jitter(color="black", size=2, alpha=0.2) +
+  theme(plot.title = element_text(size=11)) +
+  ggtitle("") +
+  xlab("") +
+  labs(fill="") 
+  
+
+# ahora violon + boxplot + jitter!!!!!!!!!!
+data3long %>%
+  ggplot( aes(x=location, y=value, fill=location)) +
+  geom_violin(width=1) +
+  geom_jitter(color="white", size=1, alpha=0.2) +
+  geom_boxplot(width=0.3, color="grey", alpha=0.2) +
+  theme_dark() +
+  theme(plot.title = element_text(size=20),
+          axis.text = element_text(size = 10)) +
+  ggtitle("oh lala!") +
+  xlab("")
+
+```
+
+### Correlaciones
+
+```{r Correlaciones}
+
+library(GGally) # cargar GGally
+ 
+#distribución y correlación 
+ggpairs(data3, title="correlogram with ggpairs") 
+ 
+
+ggcorr(data3, method = c("everything", "pearson"))
+
+head(data3)
+str(data3)
+
+ggcorr(data3[,1:5], method = c("everything", "pearson"))
+
+
+# ggpars + ggplplot
+ggpairs(data3, columns = 1:5, # por qué?????????????????
+         ggplot2::aes(colour=year)) 
+
+
+# mas opciones!
+ggpairs( 
+   data3[, c(1:5)],
+   upper = list(continuous = "density"),
+   lower = list(continuous = "points")
+ )
+
+
+#otro paquete para correlaciones!
+ 
+library(corrplot)
+ 
+
+# Como estimar correlaciones en r????????
+ 
+#M <- cor(data3[]) # Por queeeeee?????? 
+str(data3)
+ 
+M <- cor(data3[,1:5]) # Ahora funciona!
+# mirar los métodos de cor
+ 
+M 
+
+
+corrplot(M) # la mas facil
+ 
+ 
+whiteblack <- c("white", "black") # colores para usar
+ 
+corrplot(M, order = "hclust", addrect = 2, tl.col = "black", # mirar orden
+         col = whiteblack, bg = "olivedrab1"
+          )
+
+
+ 
+# now with standar palettes
+corrplot(M, order = "hclust", addrect = 2, 
+         col = heat.colors(5))
+
+corrplot(M, order = "hclust", addrect = 2, 
+         col = gray.colors(100))
+
+
+library(RColorBrewer)
+
+par(mar=c(3,4,2,2))
+display.brewer.all() # ver las paletas de colores de RColorBrewer
+
+# top
+corrplot(M, type = "upper", order = "hclust", 
+         col = brewer.pal(n = 8, name = 
+                            "RdYlBu")) 
+# botton
+corrplot(M, type = "lower", order = "hclust", 
+         col = brewer.pal(n = 8, name = "RdYlBu"))
+
+
+
+# otras opciones
+corrplot(M, method = "color", 
+         col = brewer.pal(n = 8, name = "RdYlBu"),
+         type = "upper", number.cex = .9, # tamano fuente 
+         addCoef.col = "black", # color fuente
+         tl.col = "black", tl.srt = 90, # nombres
+         diag = F)
+
+# matrix of the p-value of the correlation
+p.mat <- cor.mtest(data3[1:5])$p # pvalues
+p.mat
+
+
+corrplot(M, p.mat = p.mat, method = "color", 
+         col = brewer.pal(n = 8, name = "RdYlBu"),
+         type = "upper",
+         sig.level = c(.00001, .01, .05), 
+         pch.cex = 2,
+         insig = "label_sig", pch.col = "black",  
+         ) 
+
+corrplot.mixed(M, lower.col = "black", 
+               upper = "ellipse", number.cex = .9)
+
+```
+
+### MAPASSSSSSS
+
+```{r mapas}
+library(leaflet)
+
+# Background 1: NASA
+p <- leaflet() %>% 
+        addTiles() %>% 
+          setView( lng = -73.1172869, lat = 7.1114611,                   zoom = 5 ) %>%
+  addProviderTiles("NASAGIBS.ViirsEarthAtNight2012")
+p
+
+# Background 2: World Imagery
+
+p <- leaflet() %>% 
+  addTiles() %>% 
+  setView( lng = -73.1198511, lat = 7.1408411, 
+           zoom = 5 )  %>% 
+  addCircleMarkers(lng = -73.1172869, lat = 7.1114611,
+                   fillColor = "salmon", fillOpacity = 0.7, 
+                   color="white", radius=8, stroke=FALSE) %>% 
+  addProviderTiles("Esri.WorldImagery")
+p
+
+```
+
+
+### Mucho mas!!!!
+
+```{r Y falta mucho por aprender}
+devtools::install_github("lchiffon/wordcloud2", force=TRUE)
+library(wordcloud2)
+
+
+wordcloud2(demoFreq, color = "random-light", 
+           backgroundColor = "grey")
+
+wordcloud2(demoFreq, size = 0.7, 
+           shape = 'star',
+            backgroundColor = "black")
+
+letterCloud(demoFreq, word= "GRACIAS!!!", 
+            wordSize = 3)
+
+
+
+
+```
